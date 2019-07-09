@@ -1,18 +1,20 @@
 package com.example
 
-import akka.actor.{ ActorRef, ActorSystem }
+import akka.actor.{ActorRef, ActorSystem}
 import akka.event.Logging
+import akka.http.javadsl.model.ContentTypes
 
 import scala.concurrent.duration._
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.{HttpEntity, StatusCodes}
+import akka.http.scaladsl.model.ContentType
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.delete
 import akka.http.scaladsl.server.directives.MethodDirectives.get
 import akka.http.scaladsl.server.directives.MethodDirectives.post
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.http.scaladsl.server.directives.PathDirectives.path
-
+import akka.http.scaladsl.server.Directives._
 import scala.concurrent.Future
 import com.example.UserRegistryActor._
 import akka.pattern.ask
@@ -35,7 +37,7 @@ trait UserRoutes extends JsonSupport {
 
   //#all-routes
   //#users-get-post
-  //#users-get-delete   
+  //#users-get-delete
   lazy val userRoutes: Route =
     pathPrefix("users") {
       concat(
@@ -56,11 +58,15 @@ trait UserRoutes extends JsonSupport {
                   complete((StatusCodes.Created, performed))
                 }
               }
-            }
-          )
+            })
         },
         //#users-get-post
         //#users-get-delete
+        path("hello") {
+          get {
+              complete(HttpEntity(ContentTypes.`, "<h1>Say hello to akka-http</h1>"))
+          }
+        },
         path(Segment) { name =>
           concat(
             get {
@@ -81,10 +87,8 @@ trait UserRoutes extends JsonSupport {
                 complete((StatusCodes.OK, performed))
               }
               //#users-delete-logic
-            }
-          )
-        }
-      )
+            })
+        })
       //#users-get-delete
     }
   //#all-routes

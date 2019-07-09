@@ -1,7 +1,13 @@
 lazy val akkaHttpVersion = "10.1.8"
 lazy val akkaVersion    = "2.6.0-M3"
 
-lazy val root = (project in file(".")).
+name := "akka-http-docker-test"
+packageName in Docker := "akka-http-docker-test"
+dockerExposedPorts := Seq(5000)
+mainClass in Compile := Some("com.example.QuickstartServer")
+
+
+lazy val root = (project in file(".")).enablePlugins(JavaAppPackaging).enablePlugins(DockerPlugin).
   settings(
     inThisBuild(List(
       organization    := "com.example",
