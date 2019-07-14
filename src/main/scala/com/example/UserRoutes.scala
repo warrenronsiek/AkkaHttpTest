@@ -2,23 +2,21 @@ package com.example
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.event.Logging
-import akka.http.javadsl.model.ContentTypes
-
 import scala.concurrent.duration._
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.model.{HttpEntity, StatusCodes}
-import akka.http.scaladsl.model.ContentType
+import akka.http.scaladsl.model.{StatusCodes, ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.delete
 import akka.http.scaladsl.server.directives.MethodDirectives.get
 import akka.http.scaladsl.server.directives.MethodDirectives.post
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.http.scaladsl.server.directives.PathDirectives.path
-import akka.http.scaladsl.server.Directives._
 import scala.concurrent.Future
 import com.example.UserRegistryActor._
 import akka.pattern.ask
 import akka.util.Timeout
+import akka.actor.ActorSystem
+import akka.http.scaladsl.server.Directives._
+import scala.io.StdIn
 
 //#user-routes-class
 trait UserRoutes extends JsonSupport {
@@ -39,57 +37,57 @@ trait UserRoutes extends JsonSupport {
   //#users-get-post
   //#users-get-delete
   lazy val userRoutes: Route =
-    pathPrefix("users") {
-      concat(
-        //#users-get-delete
-        pathEnd {
-          concat(
-            get {
-              val users: Future[Users] =
-                (userRegistryActor ? GetUsers).mapTo[Users]
-              complete(users)
-            },
-            post {
-              entity(as[User]) { user =>
-                val userCreated: Future[ActionPerformed] =
-                  (userRegistryActor ? CreateUser(user)).mapTo[ActionPerformed]
-                onSuccess(userCreated) { performed =>
-                  log.info("Created user [{}]: {}", user.name, performed.description)
-                  complete((StatusCodes.Created, performed))
-                }
-              }
-            })
-        },
-        //#users-get-post
-        //#users-get-delete
-        path("hello") {
-          get {
-              complete(HttpEntity(ContentTypes.`, "<h1>Say hello to akka-http</h1>"))
-          }
-        },
-        path(Segment) { name =>
-          concat(
-            get {
-              //#retrieve-user-info
-              val maybeUser: Future[Option[User]] =
-                (userRegistryActor ? GetUser(name)).mapTo[Option[User]]
-              rejectEmptyResponse {
-                complete(maybeUser)
-              }
-              //#retrieve-user-info
-            },
-            delete {
-              //#users-delete-logic
-              val userDeleted: Future[ActionPerformed] =
-                (userRegistryActor ? DeleteUser(name)).mapTo[ActionPerformed]
-              onSuccess(userDeleted) { performed =>
-                log.info("Deleted user [{}]: {}", name, performed.description)
-                complete((StatusCodes.OK, performed))
-              }
-              //#users-delete-logic
-            })
-        })
+  pathPrefix("users") {
+    concat(
       //#users-get-delete
-    }
+      pathEnd {
+        concat(
+          get {
+            val users: Future[Users] =
+              (userRegistryActor ? GetUsers).mapTo[Users]
+            complete(users)
+          },
+          post {
+            entity(as[User]) { user =>
+              val userCreated: Future[ActionPerformed] =
+                (userRegistryActor ? CreateUser(user)).mapTo[ActionPerformed]
+              onSuccess(userCreated) { performed =>
+                log.info("Created user [{}]: {}", user.name, performed.description)
+                complete((StatusCodes.Created, performed))
+              }
+            }
+          })
+      },
+      //#users-get-post
+      //#users-get-delete
+      path("hello") {
+        get {
+          complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
+        }
+      },
+      path(Segment) { name =>
+        concat(
+          get {
+            //#retrieve-user-info
+            val maybeUser: Future[Option[User]] =
+              (userRegistryActor ? GetUser(name)).mapTo[Option[User]]
+            rejectEmptyResponse {
+              complete(maybeUser)
+            }
+            //#retrieve-user-info
+          },
+          delete {
+            //#users-delete-logic
+            val userDeleted: Future[ActionPerformed] =
+              (userRegistryActor ? DeleteUser(name)).mapTo[ActionPerformed]
+            onSuccess(userDeleted) { performed =>
+              log.info("Deleted user [{}]: {}", name, performed.description)
+              complete((StatusCodes.OK, performed))
+            }
+            //#users-delete-logic
+          })
+      })
+    //#users-get-delete
+  }
   //#all-routes
 }
