@@ -11,7 +11,7 @@ import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 
 //#main-class
-object QuickstartServer extends App with UserRoutes {
+object Main extends App with UserRoutes {
 
   // set up ActorSystem and other dependencies here
   //#main-class
@@ -29,7 +29,7 @@ object QuickstartServer extends App with UserRoutes {
   //#main-class
 
   //#http-server
-  val serverBinding: Future[Http.ServerBinding] = Http().bindAndHandle(routes, "localhost", 5000)
+  val serverBinding: Future[Http.ServerBinding] = Http().bindAndHandle(routes, "0.0.0.0", 5000)
 
   serverBinding.onComplete {
     case Success(bound) =>

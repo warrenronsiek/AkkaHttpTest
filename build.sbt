@@ -3,8 +3,9 @@ lazy val akkaVersion    = "2.6.0-M3"
 
 name := "akka-http-docker-test"
 packageName in Docker := "akka-http-docker-test"
+dockerUpdateLatest := true
+dockerAlias := DockerAlias(None, None, "akka-http-docker-test", Option("0.0.1"))
 dockerExposedPorts := Seq(5000)
-mainClass in Compile := Some("com.example.QuickstartServer")
 
 
 lazy val root = (project in file(".")).enablePlugins(JavaAppPackaging).enablePlugins(DockerPlugin).
